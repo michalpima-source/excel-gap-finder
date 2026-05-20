@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>קריוקי משפחתי — Demo</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :root {
+      --bg: #0a0a1a;
+      --surface: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.09);
+      --accent: #e94560;
+      --accent-dim: rgba(233,69,96,0.13);
+    }
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Demo banner ───────────────────────────────────── */
+    .demo-bar {
+      width: 100%;
+      background: rgba(233,69,96,0.15);
+      border-bottom: 1px solid rgba(233,69,96,0.25);
+      padding: 0.45rem 1rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+    }
+    .demo-bar b { color: var(--accent); }
+
+    /* ── Phone frame ───────────────────────────────────── */
+    .phone-wrap {
+      width: 100%;
+      max-width: 390px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Screens ───────────────────────────────────────── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* JOIN */
+    #s-join {
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(160deg, #0a0a1a 0%, #16213e 60%, #0f3460 100%);
+      min-height: 100dvh;
+    }
+    .join-logo { font-size: 3rem; margin-bottom: 0.3rem; }
+    .join-title { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 2rem; }
+    .form-group { width: 100%; display: flex; flex-direction: column; gap: 0.8rem; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field-label { font-size: 0.78rem; opacity: 0.5; }
+    .text-input {
+      width: 100%; padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid var(--border);
+      border-radius: 12px; color: #fff; font-size: 1rem; outline: none;
+    }
+    .text-input:focus { border-color: var(--accent); background: var(--accent-dim); }
+    .text-input::placeholder { opacity: 0.3; }
+    .code-input { text-transform: uppercase; letter-spacing: 0.4rem; font-size: 1.5rem; font-weight: 700; text-align: center; }
+    .btn-primary {
+      padding: 0.9rem; background: var(--accent);
+      border: none; border-radius: 12px; color: #fff;
+      font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 0.3rem;
+    }
+    .demo-hint {
+      margin-top: 1.2rem; font-size: 0.75rem;
+      opacity: 0.35; text-align: center; line-height: 1.6;
+    }
+
+    /* APP */
+    #s-app {
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+    .app-header {
+      padding: 0.6rem 1rem;
+      background: rgba(233,69,96,0.08);
+      border-bottom: 1px solid rgba(233,69,96,0.18);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .hdr-name { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+    .hdr-room { font-size: 0.68rem; opacity: 0.4; }
+
+    .tab-content { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+    /* Search tab */
+    #t-search { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.7rem; }
+    .search-row { display: flex; gap: 0.5rem; }
+    .search-input {
+      flex: 1; padding: 0.7rem 0.9rem;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid var(--border);
+      border-radius: 10px; color: #fff; font-size: 0.9rem; outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { opacity: 0.3; }
+    .search-btn {
+      padding: 0.7rem 1rem; background: var(--accent);
+      border: none; border-radius: 10px; color: #fff; font-size: 0.85rem; cursor: pointer;
+    }
+    .results-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .result-card {
+      display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; cursor: pointer;
+    }
+    .result-card:active { background: rgba(255,255,255,0.1); }
+    .result-thumb { width: 74px; height: 55px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background:#111; }
+    .result-info { flex: 1; overflow: hidden; min-width: 0; }
+    .result-title { font-size: 0.8rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .result-ch { font-size: 0.7rem; opacity: 0.4; margin-top: 0.1rem; }
+    .add-btn { padding: 0.35rem 0.6rem; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 0.72rem; cursor: pointer; flex-shrink: 0; }
+
+    /* Queue tab */
+    #t-queue { padding: 0.85rem; display: none; flex-direction: column; gap: 0.4rem; }
+    .np-card {
+      background: rgba(233,69,96,0.1); border: 1px solid rgba(233,69,96,0.28);
+      border-radius: 12px; padding: 0.7rem; margin-bottom: 0.2rem;
+    }
+    .np-badge { font-size: 0.62rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1rem; margin-bottom: 0.3rem; }
+    .np-title { font-size: 0.85rem; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .np-singer { font-size: 0.72rem; opacity: 0.5; margin-top: 0.2rem; }
+    .queue-row {
+      display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .q-num { width: 22px; height: 22px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; flex-shrink: 0; }
+    .q-info { flex: 1; min-width: 0; }
+    .q-title { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .q-singer { font-size: 0.7rem; opacity: 0.4; margin-top: 0.1rem; }
+    .queue-empty { padding: 2.5rem 1rem; text-align: center; opacity: 0.3; font-size: 0.9rem; line-height: 1.8; }
+
+    /* Bottom nav */
+    .bottom-nav { display: flex; border-top: 1px solid rgba(255,255,255,0.08); background: #0d0d1f; flex-shrink: 0; }
+    .nav-item {
+      flex: 1; padding: 0.65rem 0.5rem 0.45rem;
+      background: none; border: none; color: rgba(255,255,255,0.35);
+      font-size: 0.68rem; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-icon-wrap { position: relative; }
+    .nav-icon { font-size: 1.2rem; display: block; }
+    .badge {
+      position: absolute; top: -4px; left: -6px;
+      background: var(--accent); color: #fff;
+      border-radius: 50%; min-width: 15px; height: 15px;
+      font-size: 0.58rem; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* HOST preview panel */
+    #s-host {
+      flex-direction: column; min-height: 100dvh;
+      background: linear-gradient(135deg, #0a0a1a 0%, #16213e 55%, #0f3460 100%);
+      align-items: center; justify-content: center;
+      padding: 2rem 1.5rem; gap: 1.5rem;
+    }
+    .host-title { font-size: 2rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 30px rgba(233,69,96,.5); }
+    .room-box {
+      background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14);
+      border-radius: 20px; padding: 1.5rem 3rem; text-align: center;
+    }
+    .room-label { font-size: 0.85rem; opacity: 0.55; margin-bottom: 0.3rem; }
+    .room-code { font-size: 3.5rem; font-weight: 900; letter-spacing: 0.4rem; color: var(--accent); line-height: 1; }
+    .room-hint { font-size: 0.78rem; opacity: 0.4; margin-top: 0.5rem; }
+    .yt-wrap { width: 100%; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; }
+    .yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+    .host-overlay {
+      width: 100%;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .now-label { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.08rem; margin-bottom: 0.2rem; }
+    .now-singer { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+    .now-title { font-size: 0.72rem; opacity: 0.55; margin-top: 0.15rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .next-block { text-align: left; }
+    .next-label { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; }
+    .next-name { font-size: 0.85rem; opacity: 0.65; }
+    .host-empty { font-size: 1rem; opacity: 0.35; text-align: center; }
+
+    /* View toggle */
+    .view-toggle {
+      display: flex; width: 100%; max-width: 390px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0d0d1f; flex-shrink: 0;
+    }
+    .vt-btn {
+      flex: 1; padding: 0.6rem;
+      background: none; border: none; color: rgba(255,255,255,0.35);
+      font-size: 0.75rem; cursor: pointer; border-bottom: 2px solid transparent;
+    }
+    .vt-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* States */
+    .state-msg { padding: 2rem; text-align: center; opacity: 0.4; font-size: 0.85rem; }
+    .spinner {
+      display: inline-block; width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 0.4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65); z-index: 200;
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #1a1a30; border-radius: 20px 20px 0 0; padding: 1.4rem; width: 100%; max-width: 390px; }
+    .modal-hint { font-size: 0.72rem; opacity: 0.4; margin-bottom: 0.35rem; }
+    .modal-song { font-size: 0.9rem; font-weight: 600; margin-bottom: 1.2rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .modal-confirm { width: 100%; padding: 0.85rem; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-bottom: 0.4rem; }
+    .modal-cancel { width: 100%; padding: 0.85rem; background: rgba(255,255,255,0.07); border: none; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%);
+      background: rgba(10,10,26,0.92); border: 1px solid rgba(255,255,255,0.12);
+      color: #fff; padding: 0.45rem 1rem; border-radius: 20px;
+      font-size: 0.82rem; z-index: 300; pointer-events: none;
+      opacity: 0; transition: opacity 0.25s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="demo-bar">
+  🎮 <b>מצב Demo</b> — ממשק בלבד, ללא שרת. שירים אמיתיים מ-YouTube.
+</div>
+
+<!-- View toggle -->
+<div class="view-toggle">
+  <button class="vt-btn active" onclick="showView('remote')">📱 שלט (נייד)</button>
+  <button class="vt-btn" onclick="showView('host')">🖥️ מסך גדול</button>
+</div>
+
+<div class="phone-wrap">
+
+  <!-- ── JOIN ──────────────────────────────────────────── -->
+  <div id="s-join" class="screen active">
+    <div class="join-logo">🎤</div>
+    <div class="join-title">קריוקי משפחתי</div>
+    <div class="form-group">
+      <div class="field">
+        <div class="field-label">קוד החדר</div>
+        <input id="inp-code" class="text-input code-input" type="text"
+               placeholder="DEMO" maxlength="4" value="DEMO"
+               autocomplete="off" autocorrect="off">
+      </div>
+      <div class="field">
+        <div class="field-label">השם שלך</div>
+        <input id="inp-name" class="text-input" type="text"
+               placeholder="לדוגמה: אבא, דנה..." value="אבא">
+      </div>
+      <button class="btn-primary" onclick="doJoin()">הצטרף לחדר</button>
+    </div>
+    <div class="demo-hint">זהו דמו — הזן כל שם וקוד DEMO<br>הוסף שירים ורואה אותם מתנגנים</div>
+  </div>
+
+  <!-- ── APP ───────────────────────────────────────────── -->
+  <div id="s-app" class="screen">
+    <div class="app-header">
+      <div class="hdr-name" id="hdr-name">---</div>
+      <div class="hdr-room">חדר: DEMO</div>
+    </div>
+
+    <div class="tab-content">
+      <!-- Search -->
+      <div id="t-search">
+        <div class="search-row">
+          <input id="search-input" class="search-input" type="text" placeholder="חפש שיר...">
+          <button class="search-btn" onclick="doSearch()">חפש</button>
+        </div>
+        <div id="results-list" class="results-list">
+          <div class="state-msg">חפש שיר כדי להתחיל 🎵</div>
+        </div>
+      </div>
+
+      <!-- Queue -->
+      <div id="t-queue">
+        <div id="np-section" style="display:none">
+          <div class="np-card">
+            <div class="np-badge">מתנגן עכשיו 🎵</div>
+            <div class="np-title" id="np-title"></div>
+            <div class="np-singer" id="np-singer"></div>
+          </div>
+        </div>
+        <div id="queue-list">
+          <div class="queue-empty">התור ריק<br>חפש שיר כדי להתחיל 🎵</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-item active" id="nav-s" onclick="switchTab('search')">
+        <div class="nav-icon-wrap"><span class="nav-icon">🔍</span></div>
+        <span>חיפוש</span>
+      </button>
+      <button class="nav-item" id="nav-q" onclick="switchTab('queue')">
+        <div class="nav-icon-wrap">
+          <span class="nav-icon">🎵</span>
+          <div class="badge" id="q-badge" style="display:none">0</div>
+        </div>
+        <span>תור</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── HOST PREVIEW ──────────────────────────────────── -->
+  <div id="s-host" class="screen" style="display:none">
+    <div class="host-title">🎤 קריוקי משפחתי</div>
+    <div class="room-box">
+      <div class="room-label">קוד החדר</div>
+      <div class="room-code">DEMO</div>
+      <div class="room-hint">היכנסו לאתר בנייד</div>
+    </div>
+
+    <div id="host-player-section" style="display:none; width:100%; flex-direction:column; gap:0.8rem;">
+      <div class="yt-wrap" id="yt-wrap">
+        <div id="yt-player"></div>
+      </div>
+      <div class="host-overlay">
+        <div>
+          <div class="now-label">שר עכשיו</div>
+          <div class="now-singer" id="host-singer">---</div>
+          <div class="now-title" id="host-title">---</div>
+        </div>
+        <div class="next-block" id="host-next" style="display:none">
+          <div class="next-label">הבא בתור</div>
+          <div class="next-name" id="host-next-name">---</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="host-empty" id="host-empty">
+      הצטרף לחדר מהנייד ← החלון השמאלי<br>
+      <span style="font-size:0.75rem;opacity:0.5">הוסף שיר לתור — הוא יתנגן כאן</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hint">הוספת שיר לתור</div>
+    <div class="modal-song" id="modal-song"></div>
+    <button class="modal-confirm" id="modal-confirm-btn">הוסף לתור — בביצוע שלי</button>
+    <button class="modal-cancel" onclick="closeModal()">ביטול</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── State ─────────────────────────────────────────────────── */
+const state = {
+  singerName: '',
+  queue: [],
+  currentlyPlaying: null,
+  ytPlayer: null,
+  ytReady: false,
+  pendingVideo: null
+};
+
+const DEMO_SONGS = [
+  { videoId: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up – Rick Astley (Karaoke)', channel: 'Karaoke Hits', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
+  { videoId: 'fJ9rUzIMcZQ', title: 'Bohemian Rhapsody – Queen (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg' },
+  { videoId: 'JGwWNGJdvx8', title: 'Shape of You – Ed Sheeran (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg' },
+  { videoId: 'ktvTqknDobU', title: 'Radioactive – Imagine Dragons (Karaoke)', channel: 'Karaoke Version', thumbnail: 'https://i.ytimg.com/vi/ktvTqknDobU/mqdefault.jpg' },
+  { videoId: '60ItHLz5WEA', title: 'All of Me – John Legend (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/60ItHLz5WEA/mqdefault.jpg' },
+  { videoId: 'L_jWHffIx5E', title: 'All Star – Smash Mouth (Karaoke)', channel: 'Karaoke Bar', thumbnail: 'https://i.ytimg.com/vi/L_jWHffIx5E/mqdefault.jpg' },
+  { videoId: '09R8_2nJtjg', title: 'Sugar – Maroon 5 (Karaoke)', channel: 'Karaoke Hits HD', thumbnail: 'https://i.ytimg.com/vi/09R8_2nJtjg/mqdefault.jpg' },
+  { videoId: 'hTWKbfoikeg', title: 'Smells Like Teen Spirit – Nirvana (Karaoke)', channel: 'Karaoke Bar', thumbnail: 'https://i.ytimg.com/vi/hTWKbfoikeg/mqdefault.jpg' },
+  { videoId: 'CevxZvSJLk8', title: 'Katy Perry – Roar (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/CevxZvSJLk8/mqdefault.jpg' },
+  { videoId: 'OPf0YbXqDm0', title: 'Mark Ronson ft. Bruno Mars – Uptown Funk (Karaoke)', channel: 'SingKing', thumbnail: 'https://i.ytimg.com/vi/OPf0YbXqDm0/mqdefault.jpg' },
+];
+
+let pendingSong = null;
+let activeView = 'remote';
+
+/* ── Helpers ───────────────────────────────────────────────── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ── View toggle ───────────────────────────────────────────── */
+function showView(view) {
+  activeView = view;
+  document.querySelectorAll('.vt-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && view === 'remote') || (i === 1 && view === 'host'));
+  });
+  const hostScreen = document.getElementById('s-host');
+  const joinScreen = document.getElementById('s-join');
+  const appScreen  = document.getElementById('s-app');
+
+  if (view === 'host') {
+    joinScreen.classList.remove('active');
+    appScreen.classList.remove('active');
+    hostScreen.style.display = 'flex';
+    hostScreen.classList.add('active');
+    if (!state.ytReady && !state.ytPlayer) initYT();
+  } else {
+    hostScreen.style.display = 'none';
+    hostScreen.classList.remove('active');
+    if (state.singerName) {
+      appScreen.classList.add('active');
+    } else {
+      joinScreen.classList.add('active');
+    }
+  }
+}
+
+/* ── Join ──────────────────────────────────────────────────── */
+function doJoin() {
+  const name = document.getElementById('inp-name').value.trim() || 'אורח';
+  state.singerName = name;
+  document.getElementById('hdr-name').textContent = name;
+  document.getElementById('modal-confirm-btn').textContent = `הוסף לתור — בביצוע ${name}`;
+  document.getElementById('s-join').classList.remove('active');
+  document.getElementById('s-app').classList.add('active');
+}
+document.getElementById('inp-name').addEventListener('keydown', e => { if (e.key === 'Enter') doJoin(); });
+
+/* ── Search ────────────────────────────────────────────────── */
+document.getElementById('search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+function doSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const list = document.getElementById('results-list');
+  list.innerHTML = '<div class="state-msg"><div class="spinner"></div><br>מחפש...</div>';
+
+  setTimeout(() => {
+    const hits = q ? DEMO_SONGS.filter(s => s.title.toLowerCase().includes(q)) : DEMO_SONGS;
+    const results = hits.length ? hits : DEMO_SONGS;
+
+    list.innerHTML = results.map(item => `
+      <div class="result-card" onclick="openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+        <img class="result-thumb" src="${esc(item.thumbnail)}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <div class="result-info">
+          <div class="result-title">${esc(item.title)}</div>
+          <div class="result-ch">${esc(item.channel)}</div>
+        </div>
+        <button class="add-btn" onclick="event.stopPropagation();openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">+ הוסף</button>
+      </div>
+    `).join('');
+  }, 700);
+}
+
+/* ── Modal ─────────────────────────────────────────────────── */
+function openModal(song) {
+  pendingSong = song;
+  document.getElementById('modal-song').textContent = song.title;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendingSong = null;
+}
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+  if (!pendingSong) return;
+  addToQueue({ ...pendingSong, singerName: state.singerName });
+  closeModal();
+  toast('השיר נוסף לתור 🎤');
+  switchTab('queue');
+});
+
+/* ── Queue logic ───────────────────────────────────────────── */
+function addToQueue(song) {
+  const item = { ...song, id: Date.now() + '-' + Math.random().toString(36).slice(2,6) };
+  state.queue.push(item);
+  if (!state.currentlyPlaying) playNext();
+  renderQueue();
+}
+
+function playNext() {
+  if (!state.queue.length) {
+    state.currentlyPlaying = null;
+    renderQueue();
+    renderHostOverlay();
+    return;
+  }
+  state.currentlyPlaying = state.queue.shift();
+  renderQueue();
+  renderHostOverlay();
+  loadVideo(state.currentlyPlaying.videoId);
+}
+
+/* ── Tab switch ────────────────────────────────────────────── */
+function switchTab(tab) {
+  const isS = tab === 'search';
+  document.getElementById('t-search').style.display = isS ? 'flex' : 'none';
+  document.getElementById('t-queue').style.display = isS ? 'none' : 'flex';
+  document.getElementById('nav-s').classList.toggle('active', isS);
+  document.getElementById('nav-q').classList.toggle('active', !isS);
+}
+
+/* ── Render ────────────────────────────────────────────────── */
+function renderQueue() {
+  const badge = document.getElementById('q-badge');
+  const n = state.queue.length;
+  badge.textContent = n; badge.style.display = n > 0 ? 'flex' : 'none';
+
+  const npSec = document.getElementById('np-section');
+  if (state.currentlyPlaying) {
+    npSec.style.display = 'block';
+    document.getElementById('np-title').textContent = state.currentlyPlaying.title;
+    document.getElementById('np-singer').textContent = 'שר: ' + state.currentlyPlaying.singerName;
+  } else {
+    npSec.style.display = 'none';
+  }
+
+  const qList = document.getElementById('queue-list');
+  if (!n) {
+    qList.innerHTML = '<div class="queue-empty">התור ריק<br>חפש שיר כדי להתחיל 🎵</div>';
+  } else {
+    qList.innerHTML = state.queue.map((item, i) => `
+      <div class="queue-row">
+        <div class="q-num">${i + 1}</div>
+        <div class="q-info">
+          <div class="q-title">${esc(item.title)}</div>
+          <div class="q-singer">${esc(item.singerName)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function renderHostOverlay() {
+  const empty = document.getElementById('host-empty');
+  const playerSec = document.getElementById('host-player-section');
+  if (state.currentlyPlaying) {
+    empty.style.display = 'none';
+    playerSec.style.display = 'flex';
+    document.getElementById('host-singer').textContent = state.currentlyPlaying.singerName;
+    document.getElementById('host-title').textContent = state.currentlyPlaying.title;
+    if (state.queue.length) {
+      document.getElementById('host-next').style.display = 'block';
+      document.getElementById('host-next-name').textContent = state.queue[0].singerName;
+    } else {
+      document.getElementById('host-next').style.display = 'none';
+    }
+  } else {
+    playerSec.style.display = 'none';
+    empty.style.display = 'block';
+  }
+}
+
+/* ── YouTube ───────────────────────────────────────────────── */
+function initYT() {
+  if (document.getElementById('yt-api-script')) return;
+  const s = document.createElement('script');
+  s.id = 'yt-api-script';
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  state.ytPlayer = new YT.Player('yt-player', {
+    height: '100%', width: '100%', videoId: '',
+    playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0 },
+    events: {
+      onReady: () => {
+        state.ytReady = true;
+        if (state.pendingVideo) { state.ytPlayer.loadVideoById(state.pendingVideo); state.pendingVideo = null; }
+      },
+      onStateChange: (e) => {
+        if (e.data === YT.PlayerState.ENDED) playNext();
+      },
+      onError: () => playNext()
+    }
+  });
+};
+
+function loadVideo(videoId) {
+  if (!state.ytPlayer) initYT();
+  if (state.ytReady && state.ytPlayer) {
+    state.ytPlayer.loadVideoById(videoId);
+  } else {
+    state.pendingVideo = videoId;
+  }
+}
+</script>
+</body>
+</html>
