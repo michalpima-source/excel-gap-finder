@@ -51,13 +51,30 @@ function playNext(roomId) {
   io.to(room.hostSocketId).emit('play-song', next);
 }
 
+const DEMO_SONGS = [
+  { videoId: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up – Rick Astley (Karaoke)', channel: 'Karaoke Hits', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
+  { videoId: 'L_jWHffIx5E', title: 'All Star – Smash Mouth (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/L_jWHffIx5E/mqdefault.jpg' },
+  { videoId: 'fJ9rUzIMcZQ', title: 'Bohemian Rhapsody – Queen (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg' },
+  { videoId: 'hTWKbfoikeg', title: 'Smells Like Teen Spirit – Nirvana (Karaoke)', channel: 'Karaoke Bar', thumbnail: 'https://i.ytimg.com/vi/hTWKbfoikeg/mqdefault.jpg' },
+  { videoId: '09R8_2nJtjg', title: 'Sugar – Maroon 5 (Karaoke)', channel: 'Karaoke Hits HD', thumbnail: 'https://i.ytimg.com/vi/09R8_2nJtjg/mqdefault.jpg' },
+  { videoId: 'JGwWNGJdvx8', title: 'Shape of You – Ed Sheeran (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg' },
+  { videoId: 'ktvTqknDobU', title: 'Radioactive – Imagine Dragons (Karaoke)', channel: 'Karaoke Version', thumbnail: 'https://i.ytimg.com/vi/ktvTqknDobU/mqdefault.jpg' },
+  { videoId: '60ItHLz5WEA', title: 'All of Me – John Legend (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/60ItHLz5WEA/mqdefault.jpg' },
+];
+
 app.get('/api/search', async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ error: 'Missing search query' });
 
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey || apiKey === 'your_youtube_data_api_v3_key_here') {
-    return res.status(503).json({ error: 'YouTube API key not configured. Create a .env file with YOUTUBE_API_KEY.' });
+    const query = q.toLowerCase();
+    const filtered = DEMO_SONGS.filter(s => s.title.toLowerCase().includes(query));
+    const results = (filtered.length ? filtered : DEMO_SONGS).map(s => ({
+      ...s,
+      title: `[DEMO] ${s.title}`
+    }));
+    return res.json(results);
   }
 
   try {
