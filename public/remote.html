@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>קריוקי — שלט</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #0a0a1a;
+      --surface: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.09);
+      --accent: #e94560;
+      --accent-dim: rgba(233,69,96,0.15);
+    }
+
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Join screen ─────────────────────────────────────────── */
+    #join-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: linear-gradient(160deg, #0a0a1a 0%, #16213e 60%, #0f3460 100%);
+    }
+
+    .join-logo { font-size: 3rem; margin-bottom: 0.4rem; }
+    .join-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 2.5rem;
+    }
+
+    .form-group {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field-label { font-size: 0.8rem; opacity: 0.55; padding-right: 0.2rem; }
+
+    .text-input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .text-input:focus { border-color: var(--accent); background: var(--accent-dim); }
+    .text-input::placeholder { opacity: 0.3; }
+
+    .code-input {
+      text-transform: uppercase;
+      letter-spacing: 0.4rem;
+      font-size: 1.6rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .btn {
+      padding: 0.9rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.03rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; margin-top: 0.4rem; }
+    .btn-secondary { background: var(--surface); color: rgba(255,255,255,0.65); }
+
+    .error-msg {
+      min-height: 1.1rem;
+      font-size: 0.85rem;
+      color: #ff7070;
+      text-align: center;
+    }
+
+    /* ── App screen ──────────────────────────────────────────── */
+    #app-screen {
+      display: none;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    .app-header {
+      padding: 0.65rem 1rem;
+      background: rgba(233,69,96,0.08);
+      border-bottom: 1px solid rgba(233,69,96,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-name { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+    .header-room { font-size: 0.7rem; opacity: 0.4; }
+
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
+
+    /* ── Search tab ──────────────────────────────────────────── */
+    #search-tab {
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .search-row { display: flex; gap: 0.5rem; }
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem 0.9rem;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { opacity: 0.3; }
+
+    .search-btn {
+      padding: 0.75rem 1rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .results-list { display: flex; flex-direction: column; gap: 0.45rem; }
+
+    .result-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .result-card:active { background: rgba(255,255,255,0.1); }
+
+    .result-thumb {
+      width: 76px;
+      height: 57px;
+      border-radius: 7px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #111;
+    }
+
+    .result-info { flex: 1; overflow: hidden; min-width: 0; }
+
+    .result-title {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .result-channel {
+      font-size: 0.72rem;
+      opacity: 0.45;
+      margin-top: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .add-btn {
+      padding: 0.4rem 0.65rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* ── Queue tab ───────────────────────────────────────────── */
+    #queue-tab {
+      padding: 0.9rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .np-card {
+      background: rgba(233,69,96,0.1);
+      border: 1px solid rgba(233,69,96,0.28);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .np-badge {
+      font-size: 0.65rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .np-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .np-singer { font-size: 0.75rem; opacity: 0.55; margin-top: 0.2rem; }
+
+    .queue-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .q-num {
+      width: 22px;
+      height: 22px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .q-info { flex: 1; min-width: 0; }
+
+    .q-title {
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .q-singer { font-size: 0.72rem; opacity: 0.45; margin-top: 0.1rem; }
+
+    .queue-empty {
+      padding: 3rem 1rem;
+      text-align: center;
+      opacity: 0.35;
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    /* ── Bottom nav ──────────────────────────────────────────── */
+    .bottom-nav {
+      display: flex;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: #0d0d1f;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      flex: 1;
+      padding: 0.7rem 0.5rem 0.5rem;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+
+    .nav-item.active { color: var(--accent); }
+
+    .nav-icon-wrap { position: relative; }
+    .nav-icon { font-size: 1.25rem; display: block; }
+
+    .badge {
+      position: absolute;
+      top: -4px;
+      left: -6px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      min-width: 15px;
+      height: 15px;
+      font-size: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 2px;
+    }
+
+    /* ── States ──────────────────────────────────────────────── */
+    .state-msg { padding: 2rem; text-align: center; opacity: 0.4; font-size: 0.9rem; }
+    .spinner {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Modal ───────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #1a1a30;
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .modal-hint { font-size: 0.75rem; opacity: 0.45; margin-bottom: 0.4rem; }
+    .modal-song {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 1.4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.45;
+    }
+
+    .modal-confirm {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-cancel {
+      width: 100%;
+      padding: 0.9rem;
+      background: rgba(255,255,255,0.07);
+      border: none;
+      border-radius: 10px;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    /* ── Toast ───────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,26,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 0.5rem 1.1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      z-index: 300;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Join screen ──────────────────────────────────────── -->
+  <div id="join-screen">
+    <div class="join-logo">🎤</div>
+    <div class="join-title">קריוקי משפחתי</div>
+
+    <div class="form-group">
+      <div class="field">
+        <div class="field-label">קוד החדר</div>
+        <input id="inp-code" class="text-input code-input"
+               type="text" placeholder="ABCD" maxlength="4"
+               autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <div class="field-label">השם שלך</div>
+        <input id="inp-name" class="text-input"
+               type="text" placeholder="לדוגמה: אבא, דנה..." maxlength="20">
+      </div>
+      <div class="error-msg" id="join-error"></div>
+      <button class="btn btn-primary" id="join-btn">הצטרף לחדר</button>
+    </div>
+  </div>
+
+  <!-- ── App screen ───────────────────────────────────────── -->
+  <div id="app-screen">
+    <div class="app-header">
+      <div class="header-name" id="hdr-name">---</div>
+      <div class="header-room" id="hdr-room">חדר: ---</div>
+    </div>
+
+    <div class="tab-content">
+      <!-- Search -->
+      <div id="search-tab">
+        <div class="search-row">
+          <input id="search-input" class="search-input"
+                 type="text" placeholder="חפש שיר..." autocomplete="off">
+          <button class="search-btn" id="search-btn">חפש</button>
+        </div>
+        <div id="results-list" class="results-list"></div>
+      </div>
+
+      <!-- Queue -->
+      <div id="queue-tab">
+        <div id="np-section" style="display:none">
+          <div class="np-card">
+            <div class="np-badge">מתנגן עכשיו 🎵</div>
+            <div class="np-title" id="np-title">---</div>
+            <div class="np-singer" id="np-singer">---</div>
+          </div>
+        </div>
+        <div id="queue-list"></div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-item active" id="nav-search" onclick="switchTab('search')">
+        <div class="nav-icon-wrap"><span class="nav-icon">🔍</span></div>
+        <span>חיפוש</span>
+      </button>
+      <button class="nav-item" id="nav-queue" onclick="switchTab('queue')">
+        <div class="nav-icon-wrap">
+          <span class="nav-icon">🎵</span>
+          <div class="badge" id="queue-badge" style="display:none">0</div>
+        </div>
+        <span>תור</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Song modal ───────────────────────────────────────── -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-hint">הוספת שיר לתור</div>
+      <div class="modal-song" id="modal-song-title"></div>
+      <button class="modal-confirm" id="modal-confirm">הוסף לתור — בביצוע שלי</button>
+      <button class="modal-cancel" onclick="closeModal()">ביטול</button>
+    </div>
+  </div>
+
+  <!-- ── Toast ────────────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    let roomId = null;
+    let singerName = null;
+    let pendingSong = null;
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    /* ── Join ─────────────────────────────────────────────── */
+    document.getElementById('inp-code').addEventListener('input', function() {
+      this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '');
+    });
+
+    function joinRoom() {
+      const code = document.getElementById('inp-code').value.trim();
+      const name = document.getElementById('inp-name').value.trim();
+      const errEl = document.getElementById('join-error');
+
+      if (code.length < 4) { errEl.textContent = 'יש להזין קוד חדר בן 4 אותיות'; return; }
+      if (!name) { errEl.textContent = 'יש להזין את שמך'; return; }
+
+      errEl.textContent = '';
+      const btn = document.getElementById('join-btn');
+      btn.disabled = true;
+      btn.textContent = 'מתחבר...';
+
+      socket.emit('join-room', { roomId: code, singerName: name }, (res) => {
+        if (res.success) {
+          roomId = code;
+          singerName = name;
+          document.getElementById('hdr-name').textContent = name;
+          document.getElementById('hdr-room').textContent = 'חדר: ' + code;
+          document.getElementById('modal-confirm').textContent =
+            `הוסף לתור — בביצוע ${name}`;
+          document.getElementById('join-screen').style.display = 'none';
+          document.getElementById('app-screen').style.display = 'flex';
+          renderRoom(res.room);
+        } else {
+          errEl.textContent = res.error === 'Room not found'
+            ? 'חדר לא נמצא — בדוק את הקוד'
+            : (res.error || 'שגיאה בהתחברות');
+          btn.disabled = false;
+          btn.textContent = 'הצטרף לחדר';
+        }
+      });
+    }
+
+    document.getElementById('join-btn').addEventListener('click', joinRoom);
+    ['inp-code', 'inp-name'].forEach(id =>
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); })
+    );
+
+    /* ── Search ───────────────────────────────────────────── */
+    document.getElementById('search-btn').addEventListener('click', doSearch);
+    document.getElementById('search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    async function doSearch() {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) return;
+
+      const list = document.getElementById('results-list');
+      list.innerHTML = '<div class="state-msg"><div class="spinner"></div><br>מחפש...</div>';
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+
+        if (data.error) {
+          list.innerHTML = `<div class="state-msg">${esc(data.error)}</div>`;
+          return;
+        }
+
+        if (!data.length) {
+          list.innerHTML = '<div class="state-msg">לא נמצאו תוצאות. נסה מילות חיפוש אחרות.</div>';
+          return;
+        }
+
+        list.innerHTML = data.map(item => `
+          <div class="result-card" onclick="openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+            <img class="result-thumb" src="${esc(item.thumbnail)}" alt="" loading="lazy"
+                 onerror="this.style.display='none'">
+            <div class="result-info">
+              <div class="result-title">${esc(item.title)}</div>
+              <div class="result-channel">${esc(item.channel)}</div>
+            </div>
+            <button class="add-btn"
+              onclick="event.stopPropagation();openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+              + הוסף
+            </button>
+          </div>
+        `).join('');
+      } catch {
+        list.innerHTML = '<div class="state-msg">שגיאת רשת — בדוק חיבור אינטרנט</div>';
+      }
+    }
+
+    /* ── Modal ────────────────────────────────────────────── */
+    function openModal(song) {
+      pendingSong = song;
+      document.getElementById('modal-song-title').textContent = song.title;
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+      pendingSong = null;
+    }
+
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    document.getElementById('modal-confirm').addEventListener('click', () => {
+      if (!pendingSong || !roomId) return;
+      socket.emit('add-to-queue', { roomId, song: { ...pendingSong, singerName } });
+      closeModal();
+      toast('השיר נוסף לתור 🎤');
+      switchTab('queue');
+    });
+
+    /* ── Tab switching ────────────────────────────────────── */
+    function switchTab(tab) {
+      const isSearch = tab === 'search';
+      document.getElementById('search-tab').style.display = isSearch ? 'flex' : 'none';
+      document.getElementById('queue-tab').style.display = isSearch ? 'none' : 'flex';
+      document.getElementById('nav-search').classList.toggle('active', isSearch);
+      document.getElementById('nav-queue').classList.toggle('active', !isSearch);
+    }
+
+    /* ── Queue rendering ──────────────────────────────────── */
+    function renderRoom(room) {
+      const qCount = (room.queue || []).length;
+      const badge = document.getElementById('queue-badge');
+      badge.textContent = qCount;
+      badge.style.display = qCount > 0 ? 'flex' : 'none';
+
+      const npSection = document.getElementById('np-section');
+      if (room.currentlyPlaying) {
+        npSection.style.display = 'block';
+        document.getElementById('np-title').textContent = room.currentlyPlaying.title;
+        document.getElementById('np-singer').textContent = 'שר: ' + room.currentlyPlaying.singerName;
+      } else {
+        npSection.style.display = 'none';
+      }
+
+      const qList = document.getElementById('queue-list');
+      if (!qCount) {
+        qList.innerHTML = '<div class="queue-empty">התור ריק<br>חפש שיר כדי להתחיל 🎵</div>';
+      } else {
+        qList.innerHTML = (room.queue || []).map((item, i) => `
+          <div class="queue-row">
+            <div class="q-num">${i + 1}</div>
+            <div class="q-info">
+              <div class="q-title">${esc(item.title)}</div>
+              <div class="q-singer">${esc(item.singerName)}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    socket.on('room-updated', renderRoom);
+
+    socket.on('host-disconnected', () => {
+      toast('המארח התנתק מהחדר');
+    });
+  </script>
+</body>
+</html>

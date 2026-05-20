@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>קריוקי משפחתי</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0a0a1a 0%, #16213e 60%, #0f3460 100%);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .logo { font-size: 4rem; margin-bottom: 1rem; }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #e94560;
+      text-shadow: 0 0 30px rgba(233,69,96,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { font-size: 1rem; opacity: 0.55; margin-bottom: 3rem; }
+    .cards {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    .card {
+      flex: 1;
+      min-width: 220px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .card:hover {
+      border-color: #e94560;
+      background: rgba(233,69,96,0.1);
+      transform: translateY(-3px);
+    }
+    .card-icon { font-size: 2.8rem; margin-bottom: 0.8rem; }
+    .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card-desc { font-size: 0.85rem; opacity: 0.55; line-height: 1.5; }
+    .card-host { border-color: rgba(233,69,96,0.3); }
+    .footer { margin-top: 3rem; font-size: 0.75rem; opacity: 0.3; }
+  </style>
+</head>
+<body>
+  <div class="logo">🎤</div>
+  <h1>קריוקי משפחתי</h1>
+  <p class="subtitle">ערב קריוקי עם YouTube — בכל מכשיר, בסנכרון מלא</p>
+
+  <div class="cards">
+    <a href="/host" class="card card-host">
+      <div class="card-icon">🖥️</div>
+      <div class="card-title">אני המארח</div>
+      <div class="card-desc">פתח את האפליקציה בטלוויזיה או מסך גדול, צור חדר ותן לכולם להצטרף</div>
+    </a>
+    <a href="/remote" class="card">
+      <div class="card-icon">📱</div>
+      <div class="card-title">הצטרף לחדר</div>
+      <div class="card-desc">פתח בנייד, הזן את קוד החדר, חפש שירים והוסף לתור</div>
+    </a>
+  </div>
+
+  <p class="footer">צור קשר · GitHub</p>
+</body>
+</html>
