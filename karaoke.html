@@ -2,15 +2,12 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>קריוקי משפחתי — Demo</title>
   <style>
-    *, *::before, *::after {
-      margin: 0; padding: 0; box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     :root {
-      --bg: #0a0a1a;
+      --bg: #070714;
       --surface: rgba(255,255,255,0.05);
       --border: rgba(255,255,255,0.09);
       --accent: #e94560;
@@ -21,269 +18,307 @@
       color: #fff;
       font-family: 'Segoe UI', Arial, sans-serif;
       min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      overflow-x: hidden;
     }
 
-    /* ── Demo banner ───────────────────────────────────── */
-    .demo-bar {
-      width: 100%;
-      background: rgba(233,69,96,0.15);
-      border-bottom: 1px solid rgba(233,69,96,0.25);
-      padding: 0.45rem 1rem;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.55);
-      text-align: center;
+    /* ── Header ──────────────────────────────────────────── */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 1.5rem;
+      background: rgba(0,0,0,0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(12px);
     }
-    .demo-bar b { color: var(--accent); }
-
-    /* ── Phone frame ───────────────────────────────────── */
-    .phone-wrap {
-      width: 100%;
-      max-width: 390px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    .site-logo { font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+    .demo-chip {
+      font-size: 0.7rem; padding: 0.25rem 0.7rem;
+      background: rgba(233,69,96,0.18); border: 1px solid rgba(233,69,96,0.3);
+      border-radius: 20px; color: var(--accent);
     }
 
-    /* ── Screens ───────────────────────────────────────── */
-    .screen { display: none; flex-direction: column; flex: 1; }
-    .screen.active { display: flex; }
-
-    /* JOIN */
-    #s-join {
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1.5rem;
-      background: linear-gradient(160deg, #0a0a1a 0%, #16213e 60%, #0f3460 100%);
-      min-height: 100dvh;
+    /* ── Start overlay ───────────────────────────────────── */
+    #start-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: radial-gradient(ellipse at center, #16213e 0%, #070714 70%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.5rem;
+      padding: 2rem;
     }
-    .join-logo { font-size: 3rem; margin-bottom: 0.3rem; }
-    .join-title { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 2rem; }
-    .form-group { width: 100%; display: flex; flex-direction: column; gap: 0.8rem; }
-    .field { display: flex; flex-direction: column; gap: 0.3rem; }
-    .field-label { font-size: 0.78rem; opacity: 0.5; }
-    .text-input {
-      width: 100%; padding: 0.85rem 1rem;
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid var(--border);
-      border-radius: 12px; color: #fff; font-size: 1rem; outline: none;
-    }
-    .text-input:focus { border-color: var(--accent); background: var(--accent-dim); }
-    .text-input::placeholder { opacity: 0.3; }
-    .code-input { text-transform: uppercase; letter-spacing: 0.4rem; font-size: 1.5rem; font-weight: 700; text-align: center; }
-    .btn-primary {
-      padding: 0.9rem; background: var(--accent);
-      border: none; border-radius: 12px; color: #fff;
-      font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 0.3rem;
-    }
-    .demo-hint {
-      margin-top: 1.2rem; font-size: 0.75rem;
-      opacity: 0.35; text-align: center; line-height: 1.6;
+    .start-logo { font-size: 4rem; }
+    .start-title { font-size: 2.2rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 40px rgba(233,69,96,.5); text-align: center; }
+    .start-sub { font-size: 1rem; opacity: 0.5; text-align: center; line-height: 1.7; }
+    .start-btn {
+      margin-top: 0.5rem;
+      padding: 1rem 2.5rem;
+      background: var(--accent);
+      border: none; border-radius: 50px;
+      color: #fff; font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.04rem;
+      box-shadow: 0 0 30px rgba(233,69,96,.4);
     }
 
-    /* APP */
-    #s-app {
-      flex-direction: column;
-      height: 100dvh;
-      overflow: hidden;
+    /* ── Layout ──────────────────────────────────────────── */
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 0;
+      min-height: calc(100dvh - 49px);
     }
+    @media (max-width: 700px) {
+      .demo-layout { grid-template-columns: 1fr; }
+      .host-panel { display: none; }
+      .mobile-host-preview { display: block !important; }
+    }
+
+    /* ── Host panel (left) ───────────────────────────────── */
+    .host-panel {
+      background: #000;
+      position: relative;
+      display: flex; flex-direction: column;
+      min-height: calc(100dvh - 49px);
+    }
+
+    .host-waiting {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.5rem;
+      background: linear-gradient(135deg, #0a0a1a 0%, #16213e 55%, #0f3460 100%);
+      padding: 2rem;
+    }
+    .host-waiting-title { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+    .room-box {
+      background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.13);
+      border-radius: 20px; padding: 1.5rem 3rem; text-align: center;
+    }
+    .room-label { font-size: 0.85rem; opacity: 0.5; margin-bottom: 0.3rem; }
+    .room-code { font-size: 3.5rem; font-weight: 900; letter-spacing: 0.4rem; color: var(--accent); line-height: 1; }
+    .room-hint { font-size: 0.78rem; opacity: 0.35; margin-top: 0.5rem; }
+
+    /* Player */
+    .host-player { flex: 1; position: relative; background: #000; }
+    #yt-player-el { width: 100%; height: 100%; min-height: 300px; }
+    #yt-player-el iframe { width: 100%; height: 100%; }
+
+    .player-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9));
+      padding: 3rem 1.5rem 1rem;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
+    }
+    .ov-left { flex: 1; min-width: 0; }
+    .ov-now-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12rem; opacity: 0.5; margin-bottom: 0.3rem; }
+    .ov-singer { font-size: 1.8rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+    .ov-title { font-size: 0.82rem; opacity: 0.55; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ov-right { text-align: left; flex-shrink: 0; }
+    .ov-next-label { font-size: 0.6rem; text-transform: uppercase; opacity: 0.4; margin-bottom: 0.15rem; }
+    .ov-next-name { font-size: 1rem; opacity: 0.7; }
+
+    .host-label {
+      position: absolute; top: 0.7rem; right: 0.8rem;
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; padding: 0.2rem 0.6rem;
+      font-size: 0.65rem; opacity: 0.6; letter-spacing: 0.05rem;
+    }
+
+    /* ── Phone panel (right) ─────────────────────────────── */
+    .phone-panel {
+      border-left: 1px solid rgba(255,255,255,0.07);
+      display: flex; flex-direction: column;
+      background: var(--bg);
+      position: relative;
+    }
+    .phone-label {
+      position: absolute; top: 0.7rem; left: 0.8rem;
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; padding: 0.2rem 0.6rem;
+      font-size: 0.65rem; opacity: 0.6; z-index: 5; letter-spacing: 0.05rem;
+    }
+
+    /* App UI inside phone panel */
     .app-header {
-      padding: 0.6rem 1rem;
+      padding: 0.65rem 1rem;
       background: rgba(233,69,96,0.08);
       border-bottom: 1px solid rgba(233,69,96,0.18);
       display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
+      flex-shrink: 0; margin-top: 2rem;
     }
-    .hdr-name { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
-    .hdr-room { font-size: 0.68rem; opacity: 0.4; }
+    .hdr-name { font-weight: 700; color: var(--accent); font-size: 0.88rem; }
+    .hdr-room { font-size: 0.65rem; opacity: 0.4; }
 
     .tab-content { flex: 1; overflow-y: auto; overflow-x: hidden; }
 
     /* Search tab */
-    #t-search { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.7rem; }
-    .search-row { display: flex; gap: 0.5rem; }
+    #t-search { padding: 0.8rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    .search-row { display: flex; gap: 0.45rem; }
     .search-input {
-      flex: 1; padding: 0.7rem 0.9rem;
+      flex: 1; padding: 0.65rem 0.85rem;
       background: rgba(255,255,255,0.07);
       border: 1.5px solid var(--border);
-      border-radius: 10px; color: #fff; font-size: 0.9rem; outline: none;
+      border-radius: 10px; color: #fff; font-size: 0.85rem; outline: none;
     }
     .search-input:focus { border-color: var(--accent); }
     .search-input::placeholder { opacity: 0.3; }
     .search-btn {
-      padding: 0.7rem 1rem; background: var(--accent);
-      border: none; border-radius: 10px; color: #fff; font-size: 0.85rem; cursor: pointer;
+      padding: 0.65rem 0.9rem; background: var(--accent);
+      border: none; border-radius: 10px; color: #fff; font-size: 0.82rem; cursor: pointer;
     }
-    .results-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .results-list { display: flex; flex-direction: column; gap: 0.35rem; }
     .result-card {
-      display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem;
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem;
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; cursor: pointer;
+      border-radius: 9px; cursor: pointer;
     }
     .result-card:active { background: rgba(255,255,255,0.1); }
-    .result-thumb { width: 74px; height: 55px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background:#111; }
+    .result-thumb { width: 66px; height: 50px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background:#111; }
     .result-info { flex: 1; overflow: hidden; min-width: 0; }
-    .result-title { font-size: 0.8rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .result-ch { font-size: 0.7rem; opacity: 0.4; margin-top: 0.1rem; }
-    .add-btn { padding: 0.35rem 0.6rem; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 0.72rem; cursor: pointer; flex-shrink: 0; }
+    .result-title { font-size: 0.75rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .result-ch { font-size: 0.67rem; opacity: 0.38; margin-top: 0.1rem; }
+    .add-btn { padding: 0.3rem 0.55rem; background: var(--accent); border: none; border-radius: 5px; color: #fff; font-size: 0.68rem; cursor: pointer; flex-shrink: 0; }
 
     /* Queue tab */
-    #t-queue { padding: 0.85rem; display: none; flex-direction: column; gap: 0.4rem; }
+    #t-queue { padding: 0.8rem; display: none; flex-direction: column; gap: 0.35rem; }
     .np-card {
       background: rgba(233,69,96,0.1); border: 1px solid rgba(233,69,96,0.28);
-      border-radius: 12px; padding: 0.7rem; margin-bottom: 0.2rem;
+      border-radius: 12px; padding: 0.65rem; margin-bottom: 0.2rem;
     }
-    .np-badge { font-size: 0.62rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1rem; margin-bottom: 0.3rem; }
-    .np-title { font-size: 0.85rem; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .np-singer { font-size: 0.72rem; opacity: 0.5; margin-top: 0.2rem; }
+    .np-badge { font-size: 0.6rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1rem; margin-bottom: 0.25rem; }
+    .np-title { font-size: 0.82rem; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .np-singer { font-size: 0.7rem; opacity: 0.5; margin-top: 0.15rem; }
     .queue-row {
-      display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
     }
-    .q-num { width: 22px; height: 22px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; flex-shrink: 0; }
+    .q-num { width: 20px; height: 20px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; flex-shrink: 0; }
     .q-info { flex: 1; min-width: 0; }
-    .q-title { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .q-singer { font-size: 0.7rem; opacity: 0.4; margin-top: 0.1rem; }
-    .queue-empty { padding: 2.5rem 1rem; text-align: center; opacity: 0.3; font-size: 0.9rem; line-height: 1.8; }
+    .q-title { font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .q-singer { font-size: 0.68rem; opacity: 0.38; margin-top: 0.08rem; }
+    .queue-empty { padding: 2rem 1rem; text-align: center; opacity: 0.28; font-size: 0.85rem; line-height: 1.8; }
 
     /* Bottom nav */
-    .bottom-nav { display: flex; border-top: 1px solid rgba(255,255,255,0.08); background: #0d0d1f; flex-shrink: 0; }
+    .bottom-nav { display: flex; border-top: 1px solid rgba(255,255,255,0.07); background: #0d0d1f; flex-shrink: 0; }
     .nav-item {
-      flex: 1; padding: 0.65rem 0.5rem 0.45rem;
-      background: none; border: none; color: rgba(255,255,255,0.35);
-      font-size: 0.68rem; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+      flex: 1; padding: 0.6rem 0.5rem 0.4rem;
+      background: none; border: none; color: rgba(255,255,255,0.32);
+      font-size: 0.65rem; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 0.12rem;
     }
     .nav-item.active { color: var(--accent); }
     .nav-icon-wrap { position: relative; }
-    .nav-icon { font-size: 1.2rem; display: block; }
+    .nav-icon { font-size: 1.15rem; display: block; }
     .badge {
       position: absolute; top: -4px; left: -6px;
       background: var(--accent); color: #fff;
-      border-radius: 50%; min-width: 15px; height: 15px;
-      font-size: 0.58rem; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; min-width: 14px; height: 14px;
+      font-size: 0.55rem; display: flex; align-items: center; justify-content: center;
     }
 
-    /* HOST preview panel */
-    #s-host {
-      flex-direction: column; min-height: 100dvh;
-      background: linear-gradient(135deg, #0a0a1a 0%, #16213e 55%, #0f3460 100%);
-      align-items: center; justify-content: center;
-      padding: 2rem 1.5rem; gap: 1.5rem;
+    /* mobile host preview strip */
+    .mobile-host-preview {
+      display: none;
+      background: rgba(233,69,96,0.07);
+      border: 1px solid rgba(233,69,96,0.2);
+      border-radius: 10px; margin: 0.8rem; padding: 0.7rem;
     }
-    .host-title { font-size: 2rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 30px rgba(233,69,96,.5); }
-    .room-box {
-      background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14);
-      border-radius: 20px; padding: 1.5rem 3rem; text-align: center;
-    }
-    .room-label { font-size: 0.85rem; opacity: 0.55; margin-bottom: 0.3rem; }
-    .room-code { font-size: 3.5rem; font-weight: 900; letter-spacing: 0.4rem; color: var(--accent); line-height: 1; }
-    .room-hint { font-size: 0.78rem; opacity: 0.4; margin-top: 0.5rem; }
-    .yt-wrap { width: 100%; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; }
-    .yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
-    .host-overlay {
-      width: 100%;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 0.8rem 1rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .now-label { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.08rem; margin-bottom: 0.2rem; }
-    .now-singer { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
-    .now-title { font-size: 0.72rem; opacity: 0.55; margin-top: 0.15rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .next-block { text-align: left; }
-    .next-label { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; }
-    .next-name { font-size: 0.85rem; opacity: 0.65; }
-    .host-empty { font-size: 1rem; opacity: 0.35; text-align: center; }
-
-    /* View toggle */
-    .view-toggle {
-      display: flex; width: 100%; max-width: 390px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      background: #0d0d1f; flex-shrink: 0;
-    }
-    .vt-btn {
-      flex: 1; padding: 0.6rem;
-      background: none; border: none; color: rgba(255,255,255,0.35);
-      font-size: 0.75rem; cursor: pointer; border-bottom: 2px solid transparent;
-    }
-    .vt-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    /* States */
-    .state-msg { padding: 2rem; text-align: center; opacity: 0.4; font-size: 0.85rem; }
-    .spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 0.4rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .mhp-label { font-size: 0.62rem; color: var(--accent); opacity: 0.7; margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.08rem; }
+    .mhp-song { font-size: 0.8rem; font-weight: 600; }
+    .mhp-singer { font-size: 0.72rem; opacity: 0.5; margin-top: 0.1rem; }
 
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.65); z-index: 200;
+      background: rgba(0,0,0,0.7); z-index: 200;
       align-items: flex-end; justify-content: center;
     }
     .modal-overlay.open { display: flex; }
-    .modal { background: #1a1a30; border-radius: 20px 20px 0 0; padding: 1.4rem; width: 100%; max-width: 390px; }
-    .modal-hint { font-size: 0.72rem; opacity: 0.4; margin-bottom: 0.35rem; }
-    .modal-song { font-size: 0.9rem; font-weight: 600; margin-bottom: 1.2rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .modal {
+      background: #1a1a30; border-radius: 20px 20px 0 0;
+      padding: 1.3rem; width: 100%; max-width: 480px;
+    }
+    .modal-hint { font-size: 0.7rem; opacity: 0.38; margin-bottom: 0.3rem; }
+    .modal-song { font-size: 0.88rem; font-weight: 600; margin-bottom: 1.1rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .modal-confirm { width: 100%; padding: 0.85rem; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-bottom: 0.4rem; }
-    .modal-cancel { width: 100%; padding: 0.85rem; background: rgba(255,255,255,0.07); border: none; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; }
+    .modal-cancel { width: 100%; padding: 0.85rem; background: rgba(255,255,255,0.07); border: none; border-radius: 10px; color: rgba(255,255,255,0.55); font-size: 0.85rem; cursor: pointer; }
 
     /* Toast */
     .toast {
-      position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%);
-      background: rgba(10,10,26,0.92); border: 1px solid rgba(255,255,255,0.12);
-      color: #fff; padding: 0.45rem 1rem; border-radius: 20px;
-      font-size: 0.82rem; z-index: 300; pointer-events: none;
+      position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+      background: rgba(10,10,26,0.93); border: 1px solid rgba(255,255,255,0.12);
+      color: #fff; padding: 0.42rem 1rem; border-radius: 20px;
+      font-size: 0.8rem; z-index: 300; pointer-events: none;
       opacity: 0; transition: opacity 0.25s; white-space: nowrap;
     }
     .toast.show { opacity: 1; }
+
+    /* States */
+    .state-msg { padding: 1.5rem; text-align: center; opacity: 0.35; font-size: 0.82rem; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 0.35rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<div class="demo-bar">
-  🎮 <b>מצב Demo</b> — ממשק בלבד, ללא שרת. שירים אמיתיים מ-YouTube.
+<!-- ── Start overlay ─────────────────────────────────────── -->
+<div id="start-overlay">
+  <div class="start-logo">🎤</div>
+  <div class="start-title">קריוקי משפחתי</div>
+  <div class="start-sub">
+    ערב קריוקי משפחתי מלא<br>
+    מסך גדול + שלט בנייד + תור בזמן אמת
+  </div>
+  <button class="start-btn" onclick="startDemo()">▶ הפעל דמו</button>
 </div>
 
-<!-- View toggle -->
-<div class="view-toggle">
-  <button class="vt-btn active" onclick="showView('remote')">📱 שלט (נייד)</button>
-  <button class="vt-btn" onclick="showView('host')">🖥️ מסך גדול</button>
-</div>
+<!-- ── Site header ────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="site-logo">🎤 קריוקי משפחתי</div>
+  <div class="demo-chip">DEMO</div>
+</header>
 
-<div class="phone-wrap">
+<!-- ── Demo layout ────────────────────────────────────────── -->
+<div class="demo-layout">
 
-  <!-- ── JOIN ──────────────────────────────────────────── -->
-  <div id="s-join" class="screen active">
-    <div class="join-logo">🎤</div>
-    <div class="join-title">קריוקי משפחתי</div>
-    <div class="form-group">
-      <div class="field">
-        <div class="field-label">קוד החדר</div>
-        <input id="inp-code" class="text-input code-input" type="text"
-               placeholder="DEMO" maxlength="4" value="DEMO"
-               autocomplete="off" autocorrect="off">
+  <!-- HOST (left / big screen) -->
+  <div class="host-panel">
+    <div class="host-label">🖥️ מסך גדול — TV</div>
+
+    <div id="host-waiting" class="host-waiting" style="display:none">
+      <div class="host-waiting-title">🎤 קריוקי משפחתי</div>
+      <div class="room-box">
+        <div class="room-label">קוד החדר</div>
+        <div class="room-code">DEMO</div>
+        <div class="room-hint">היכנסו לאתר בנייד</div>
       </div>
-      <div class="field">
-        <div class="field-label">השם שלך</div>
-        <input id="inp-name" class="text-input" type="text"
-               placeholder="לדוגמה: אבא, דנה..." value="אבא">
-      </div>
-      <button class="btn-primary" onclick="doJoin()">הצטרף לחדר</button>
     </div>
-    <div class="demo-hint">זהו דמו — הזן כל שם וקוד DEMO<br>הוסף שירים ורואה אותם מתנגנים</div>
+
+    <div id="host-player" class="host-player" style="display:none; flex:1;">
+      <div id="yt-player-el"></div>
+      <div class="player-overlay">
+        <div class="ov-left">
+          <div class="ov-now-label">שר עכשיו</div>
+          <div class="ov-singer" id="ov-singer">---</div>
+          <div class="ov-title" id="ov-title">---</div>
+        </div>
+        <div class="ov-right" id="ov-next-block" style="display:none">
+          <div class="ov-next-label">הבא בתור</div>
+          <div class="ov-next-name" id="ov-next-name">---</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- ── APP ───────────────────────────────────────────── -->
-  <div id="s-app" class="screen">
+  <!-- PHONE (right / remote) -->
+  <div class="phone-panel">
+    <div class="phone-label">📱 נייד — שלט</div>
+
+    <!-- mobile-only: now playing strip -->
+    <div class="mobile-host-preview" id="mobile-np">
+      <div class="mhp-label">מתנגן עכשיו במסך הגדול</div>
+      <div class="mhp-song" id="mnp-title">---</div>
+      <div class="mhp-singer" id="mnp-singer">---</div>
+    </div>
+
     <div class="app-header">
-      <div class="hdr-name" id="hdr-name">---</div>
+      <div class="hdr-name" id="hdr-name">אבא</div>
       <div class="hdr-room">חדר: DEMO</div>
     </div>
 
@@ -295,22 +330,19 @@
           <button class="search-btn" onclick="doSearch()">חפש</button>
         </div>
         <div id="results-list" class="results-list">
-          <div class="state-msg">חפש שיר כדי להתחיל 🎵</div>
+          <div class="state-msg">חפש שיר להוסיף לתור 🎵</div>
         </div>
       </div>
-
       <!-- Queue -->
       <div id="t-queue">
-        <div id="np-section" style="display:none">
+        <div id="np-section">
           <div class="np-card">
             <div class="np-badge">מתנגן עכשיו 🎵</div>
-            <div class="np-title" id="np-title"></div>
-            <div class="np-singer" id="np-singer"></div>
+            <div class="np-title" id="np-title">---</div>
+            <div class="np-singer" id="np-singer">---</div>
           </div>
         </div>
-        <div id="queue-list">
-          <div class="queue-empty">התור ריק<br>חפש שיר כדי להתחיל 🎵</div>
-        </div>
+        <div id="queue-list"></div>
       </div>
     </div>
 
@@ -329,38 +361,6 @@
     </div>
   </div>
 
-  <!-- ── HOST PREVIEW ──────────────────────────────────── -->
-  <div id="s-host" class="screen" style="display:none">
-    <div class="host-title">🎤 קריוקי משפחתי</div>
-    <div class="room-box">
-      <div class="room-label">קוד החדר</div>
-      <div class="room-code">DEMO</div>
-      <div class="room-hint">היכנסו לאתר בנייד</div>
-    </div>
-
-    <div id="host-player-section" style="display:none; width:100%; flex-direction:column; gap:0.8rem;">
-      <div class="yt-wrap" id="yt-wrap">
-        <div id="yt-player"></div>
-      </div>
-      <div class="host-overlay">
-        <div>
-          <div class="now-label">שר עכשיו</div>
-          <div class="now-singer" id="host-singer">---</div>
-          <div class="now-title" id="host-title">---</div>
-        </div>
-        <div class="next-block" id="host-next" style="display:none">
-          <div class="next-label">הבא בתור</div>
-          <div class="next-name" id="host-next-name">---</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="host-empty" id="host-empty">
-      הצטרף לחדר מהנייד ← החלון השמאלי<br>
-      <span style="font-size:0.75rem;opacity:0.5">הוסף שיר לתור — הוא יתנגן כאן</span>
-    </div>
-  </div>
-
 </div>
 
 <!-- Modal -->
@@ -376,93 +376,160 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ── State ─────────────────────────────────────────────────── */
+/* ── Data ──────────────────────────────────────────────────── */
+const SONGS = [
+  { videoId:'fJ9rUzIMcZQ', title:'Bohemian Rhapsody – Queen (Karaoke)', channel:'SingKing Karaoke', thumbnail:'https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg' },
+  { videoId:'dQw4w9WgXcQ', title:'Never Gonna Give You Up – Rick Astley (Karaoke)', channel:'Karaoke Hits', thumbnail:'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
+  { videoId:'L_jWHffIx5E', title:'All Star – Smash Mouth (Karaoke)', channel:'Karaoke Bar', thumbnail:'https://i.ytimg.com/vi/L_jWHffIx5E/mqdefault.jpg' },
+  { videoId:'JGwWNGJdvx8', title:'Shape of You – Ed Sheeran (Karaoke)', channel:'SingKing Karaoke', thumbnail:'https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg' },
+  { videoId:'ktvTqknDobU', title:'Radioactive – Imagine Dragons (Karaoke)', channel:'Karaoke Version', thumbnail:'https://i.ytimg.com/vi/ktvTqknDobU/mqdefault.jpg' },
+  { videoId:'60ItHLz5WEA', title:'All of Me – John Legend (Karaoke)', channel:'Karaoke Planet', thumbnail:'https://i.ytimg.com/vi/60ItHLz5WEA/mqdefault.jpg' },
+  { videoId:'CevxZvSJLk8', title:'Roar – Katy Perry (Karaoke)', channel:'Karaoke Planet', thumbnail:'https://i.ytimg.com/vi/CevxZvSJLk8/mqdefault.jpg' },
+  { videoId:'OPf0YbXqDm0', title:'Uptown Funk – Mark Ronson ft. Bruno Mars (Karaoke)', channel:'SingKing', thumbnail:'https://i.ytimg.com/vi/OPf0YbXqDm0/mqdefault.jpg' },
+  { videoId:'09R8_2nJtjg', title:'Sugar – Maroon 5 (Karaoke)', channel:'Karaoke Hits HD', thumbnail:'https://i.ytimg.com/vi/09R8_2nJtjg/mqdefault.jpg' },
+  { videoId:'hTWKbfoikeg', title:'Smells Like Teen Spirit – Nirvana (Karaoke)', channel:'Karaoke Bar', thumbnail:'https://i.ytimg.com/vi/hTWKbfoikeg/mqdefault.jpg' },
+];
+
 const state = {
-  singerName: '',
+  singerName: 'אבא',
   queue: [],
   currentlyPlaying: null,
   ytPlayer: null,
   ytReady: false,
-  pendingVideo: null
+  pendingVideo: null,
 };
 
-const DEMO_SONGS = [
-  { videoId: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up – Rick Astley (Karaoke)', channel: 'Karaoke Hits', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
-  { videoId: 'fJ9rUzIMcZQ', title: 'Bohemian Rhapsody – Queen (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg' },
-  { videoId: 'JGwWNGJdvx8', title: 'Shape of You – Ed Sheeran (Karaoke)', channel: 'SingKing Karaoke', thumbnail: 'https://i.ytimg.com/vi/JGwWNGJdvx8/mqdefault.jpg' },
-  { videoId: 'ktvTqknDobU', title: 'Radioactive – Imagine Dragons (Karaoke)', channel: 'Karaoke Version', thumbnail: 'https://i.ytimg.com/vi/ktvTqknDobU/mqdefault.jpg' },
-  { videoId: '60ItHLz5WEA', title: 'All of Me – John Legend (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/60ItHLz5WEA/mqdefault.jpg' },
-  { videoId: 'L_jWHffIx5E', title: 'All Star – Smash Mouth (Karaoke)', channel: 'Karaoke Bar', thumbnail: 'https://i.ytimg.com/vi/L_jWHffIx5E/mqdefault.jpg' },
-  { videoId: '09R8_2nJtjg', title: 'Sugar – Maroon 5 (Karaoke)', channel: 'Karaoke Hits HD', thumbnail: 'https://i.ytimg.com/vi/09R8_2nJtjg/mqdefault.jpg' },
-  { videoId: 'hTWKbfoikeg', title: 'Smells Like Teen Spirit – Nirvana (Karaoke)', channel: 'Karaoke Bar', thumbnail: 'https://i.ytimg.com/vi/hTWKbfoikeg/mqdefault.jpg' },
-  { videoId: 'CevxZvSJLk8', title: 'Katy Perry – Roar (Karaoke)', channel: 'Karaoke Planet', thumbnail: 'https://i.ytimg.com/vi/CevxZvSJLk8/mqdefault.jpg' },
-  { videoId: 'OPf0YbXqDm0', title: 'Mark Ronson ft. Bruno Mars – Uptown Funk (Karaoke)', channel: 'SingKing', thumbnail: 'https://i.ytimg.com/vi/OPf0YbXqDm0/mqdefault.jpg' },
-];
+/* ── Start demo ────────────────────────────────────────────── */
+function startDemo() {
+  document.getElementById('start-overlay').style.display = 'none';
 
-let pendingSong = null;
-let activeView = 'remote';
+  // Pre-load queue
+  state.queue = [
+    { ...SONGS[2], singerName: 'דנה',    id: '1' },
+    { ...SONGS[3], singerName: 'ילדים',  id: '2' },
+  ];
+  state.currentlyPlaying = { ...SONGS[0], singerName: 'אבא', id: '0' };
 
-/* ── Helpers ───────────────────────────────────────────────── */
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2600);
+  document.getElementById('host-player').style.display = 'flex';
+  document.getElementById('host-player').style.flexDirection = 'column';
+  document.getElementById('host-waiting').style.display = 'none';
+
+  renderAll();
+  initYT();
+  switchTab('queue');
 }
 
-/* ── View toggle ───────────────────────────────────────────── */
-function showView(view) {
-  activeView = view;
-  document.querySelectorAll('.vt-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && view === 'remote') || (i === 1 && view === 'host'));
-  });
-  const hostScreen = document.getElementById('s-host');
-  const joinScreen = document.getElementById('s-join');
-  const appScreen  = document.getElementById('s-app');
+/* ── YouTube ───────────────────────────────────────────────── */
+function initYT() {
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+}
 
-  if (view === 'host') {
-    joinScreen.classList.remove('active');
-    appScreen.classList.remove('active');
-    hostScreen.style.display = 'flex';
-    hostScreen.classList.add('active');
-    if (!state.ytReady && !state.ytPlayer) initYT();
-  } else {
-    hostScreen.style.display = 'none';
-    hostScreen.classList.remove('active');
-    if (state.singerName) {
-      appScreen.classList.add('active');
-    } else {
-      joinScreen.classList.add('active');
+window.onYouTubeIframeAPIReady = () => {
+  state.ytPlayer = new YT.Player('yt-player-el', {
+    height: '100%', width: '100%',
+    videoId: state.currentlyPlaying?.videoId || '',
+    playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, origin: location.origin },
+    events: {
+      onReady: () => {
+        state.ytReady = true;
+        if (state.pendingVideo) { state.ytPlayer.loadVideoById(state.pendingVideo); state.pendingVideo = null; }
+      },
+      onStateChange: e => { if (e.data === YT.PlayerState.ENDED) playNext(); },
+      onError: () => playNext()
     }
+  });
+};
+
+function loadVideo(videoId) {
+  if (state.ytReady && state.ytPlayer) {
+    state.ytPlayer.loadVideoById(videoId);
+  } else {
+    state.pendingVideo = videoId;
   }
 }
 
-/* ── Join ──────────────────────────────────────────────────── */
-function doJoin() {
-  const name = document.getElementById('inp-name').value.trim() || 'אורח';
-  state.singerName = name;
-  document.getElementById('hdr-name').textContent = name;
-  document.getElementById('modal-confirm-btn').textContent = `הוסף לתור — בביצוע ${name}`;
-  document.getElementById('s-join').classList.remove('active');
-  document.getElementById('s-app').classList.add('active');
+/* ── Queue logic ───────────────────────────────────────────── */
+function addToQueue(song) {
+  const item = { ...song, id: Date.now() + '-' + Math.random().toString(36).slice(2,5) };
+  state.queue.push(item);
+  if (!state.currentlyPlaying) playNext();
+  renderAll();
 }
-document.getElementById('inp-name').addEventListener('keydown', e => { if (e.key === 'Enter') doJoin(); });
+
+function playNext() {
+  if (!state.queue.length) {
+    state.currentlyPlaying = null;
+    renderAll();
+    return;
+  }
+  state.currentlyPlaying = state.queue.shift();
+  renderAll();
+  loadVideo(state.currentlyPlaying.videoId);
+}
+
+/* ── Render ────────────────────────────────────────────────── */
+function renderAll() {
+  const cp = state.currentlyPlaying;
+  const q  = state.queue;
+
+  // Host overlay
+  if (cp) {
+    document.getElementById('ov-singer').textContent = cp.singerName;
+    document.getElementById('ov-title').textContent  = cp.title;
+    if (q.length) {
+      document.getElementById('ov-next-block').style.display = 'block';
+      document.getElementById('ov-next-name').textContent = q[0].singerName;
+    } else {
+      document.getElementById('ov-next-block').style.display = 'none';
+    }
+  }
+
+  // Mobile now-playing strip
+  if (cp) {
+    document.getElementById('mnp-title').textContent  = cp.title;
+    document.getElementById('mnp-singer').textContent = 'שר: ' + cp.singerName;
+    document.getElementById('mobile-np').style.display = 'block';
+  }
+
+  // Remote — now playing card
+  if (cp) {
+    document.getElementById('np-section').style.display = 'block';
+    document.getElementById('np-title').textContent  = cp.title;
+    document.getElementById('np-singer').textContent = 'שר: ' + cp.singerName;
+  } else {
+    document.getElementById('np-section').style.display = 'none';
+  }
+
+  // Queue list
+  const badge = document.getElementById('q-badge');
+  badge.textContent = q.length;
+  badge.style.display = q.length ? 'flex' : 'none';
+
+  const qList = document.getElementById('queue-list');
+  qList.innerHTML = q.length
+    ? q.map((item, i) => `
+        <div class="queue-row">
+          <div class="q-num">${i+1}</div>
+          <div class="q-info">
+            <div class="q-title">${esc(item.title)}</div>
+            <div class="q-singer">${esc(item.singerName)}</div>
+          </div>
+        </div>`).join('')
+    : '<div class="queue-empty">התור ריק — חפש שיר 🎵</div>';
+}
 
 /* ── Search ────────────────────────────────────────────────── */
-document.getElementById('search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('search-input').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
 
 function doSearch() {
   const q = document.getElementById('search-input').value.trim().toLowerCase();
   const list = document.getElementById('results-list');
   list.innerHTML = '<div class="state-msg"><div class="spinner"></div><br>מחפש...</div>';
-
   setTimeout(() => {
-    const hits = q ? DEMO_SONGS.filter(s => s.title.toLowerCase().includes(q)) : DEMO_SONGS;
-    const results = hits.length ? hits : DEMO_SONGS;
-
+    const hits = q ? SONGS.filter(s => s.title.toLowerCase().includes(q)) : SONGS;
+    const results = hits.length ? hits : SONGS;
     list.innerHTML = results.map(item => `
       <div class="result-card" onclick="openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">
         <img class="result-thumb" src="${esc(item.thumbnail)}" alt="" loading="lazy" onerror="this.style.display='none'">
@@ -471,12 +538,12 @@ function doSearch() {
           <div class="result-ch">${esc(item.channel)}</div>
         </div>
         <button class="add-btn" onclick="event.stopPropagation();openModal(${JSON.stringify(item).replace(/"/g,'&quot;')})">+ הוסף</button>
-      </div>
-    `).join('');
-  }, 700);
+      </div>`).join('');
+  }, 600);
 }
 
 /* ── Modal ─────────────────────────────────────────────────── */
+let pendingSong = null;
 function openModal(song) {
   pendingSong = song;
   document.getElementById('modal-song').textContent = song.title;
@@ -486,9 +553,7 @@ function closeModal() {
   document.getElementById('modal').classList.remove('open');
   pendingSong = null;
 }
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
+document.getElementById('modal').addEventListener('click', e => { if (e.target===document.getElementById('modal')) closeModal(); });
 document.getElementById('modal-confirm-btn').addEventListener('click', () => {
   if (!pendingSong) return;
   addToQueue({ ...pendingSong, singerName: state.singerName });
@@ -497,120 +562,22 @@ document.getElementById('modal-confirm-btn').addEventListener('click', () => {
   switchTab('queue');
 });
 
-/* ── Queue logic ───────────────────────────────────────────── */
-function addToQueue(song) {
-  const item = { ...song, id: Date.now() + '-' + Math.random().toString(36).slice(2,6) };
-  state.queue.push(item);
-  if (!state.currentlyPlaying) playNext();
-  renderQueue();
-}
-
-function playNext() {
-  if (!state.queue.length) {
-    state.currentlyPlaying = null;
-    renderQueue();
-    renderHostOverlay();
-    return;
-  }
-  state.currentlyPlaying = state.queue.shift();
-  renderQueue();
-  renderHostOverlay();
-  loadVideo(state.currentlyPlaying.videoId);
-}
-
-/* ── Tab switch ────────────────────────────────────────────── */
+/* ── Tabs ──────────────────────────────────────────────────── */
 function switchTab(tab) {
-  const isS = tab === 'search';
+  const isS = tab==='search';
   document.getElementById('t-search').style.display = isS ? 'flex' : 'none';
-  document.getElementById('t-queue').style.display = isS ? 'none' : 'flex';
+  document.getElementById('t-queue').style.display  = isS ? 'none' : 'flex';
   document.getElementById('nav-s').classList.toggle('active', isS);
   document.getElementById('nav-q').classList.toggle('active', !isS);
 }
 
-/* ── Render ────────────────────────────────────────────────── */
-function renderQueue() {
-  const badge = document.getElementById('q-badge');
-  const n = state.queue.length;
-  badge.textContent = n; badge.style.display = n > 0 ? 'flex' : 'none';
-
-  const npSec = document.getElementById('np-section');
-  if (state.currentlyPlaying) {
-    npSec.style.display = 'block';
-    document.getElementById('np-title').textContent = state.currentlyPlaying.title;
-    document.getElementById('np-singer').textContent = 'שר: ' + state.currentlyPlaying.singerName;
-  } else {
-    npSec.style.display = 'none';
-  }
-
-  const qList = document.getElementById('queue-list');
-  if (!n) {
-    qList.innerHTML = '<div class="queue-empty">התור ריק<br>חפש שיר כדי להתחיל 🎵</div>';
-  } else {
-    qList.innerHTML = state.queue.map((item, i) => `
-      <div class="queue-row">
-        <div class="q-num">${i + 1}</div>
-        <div class="q-info">
-          <div class="q-title">${esc(item.title)}</div>
-          <div class="q-singer">${esc(item.singerName)}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-}
-
-function renderHostOverlay() {
-  const empty = document.getElementById('host-empty');
-  const playerSec = document.getElementById('host-player-section');
-  if (state.currentlyPlaying) {
-    empty.style.display = 'none';
-    playerSec.style.display = 'flex';
-    document.getElementById('host-singer').textContent = state.currentlyPlaying.singerName;
-    document.getElementById('host-title').textContent = state.currentlyPlaying.title;
-    if (state.queue.length) {
-      document.getElementById('host-next').style.display = 'block';
-      document.getElementById('host-next-name').textContent = state.queue[0].singerName;
-    } else {
-      document.getElementById('host-next').style.display = 'none';
-    }
-  } else {
-    playerSec.style.display = 'none';
-    empty.style.display = 'block';
-  }
-}
-
-/* ── YouTube ───────────────────────────────────────────────── */
-function initYT() {
-  if (document.getElementById('yt-api-script')) return;
-  const s = document.createElement('script');
-  s.id = 'yt-api-script';
-  s.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(s);
-}
-
-window.onYouTubeIframeAPIReady = () => {
-  state.ytPlayer = new YT.Player('yt-player', {
-    height: '100%', width: '100%', videoId: '',
-    playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0 },
-    events: {
-      onReady: () => {
-        state.ytReady = true;
-        if (state.pendingVideo) { state.ytPlayer.loadVideoById(state.pendingVideo); state.pendingVideo = null; }
-      },
-      onStateChange: (e) => {
-        if (e.data === YT.PlayerState.ENDED) playNext();
-      },
-      onError: () => playNext()
-    }
-  });
-};
-
-function loadVideo(videoId) {
-  if (!state.ytPlayer) initYT();
-  if (state.ytReady && state.ytPlayer) {
-    state.ytPlayer.loadVideoById(videoId);
-  } else {
-    state.pendingVideo = videoId;
-  }
+/* ── Helpers ───────────────────────────────────────────────── */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
 }
 </script>
 </body>
