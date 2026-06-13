@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const axios = require('axios');
 const path = require('path');
+const { router: dashboardRouter } = require('./routes/dashboard');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +13,8 @@ const io = new Server(server);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api/dashboard', dashboardRouter);
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/host', (req, res) => res.sendFile(path.join(__dirname, 'public', 'host.html')));
 app.get('/remote', (req, res) => res.sendFile(path.join(__dirname, 'public', 'remote.html')));
 
@@ -181,5 +184,13 @@ io.on('connection', (socket) => {
   });
 });
 
+// Emit socket refresh signal every 5 minutes for live dashboard updates
+setInterval(() => {
+  io.emit('dashboard-refresh', { timestamp: new Date().toISOString() });
+}, 5 * 60 * 1000);
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Karaoke server: http://localhost:${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running: http://localhost:${PORT}`);
+  console.log(`  Dashboard:    http://localhost:${PORT}/dashboard`);
+});
